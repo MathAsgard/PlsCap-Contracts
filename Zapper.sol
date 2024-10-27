@@ -423,7 +423,7 @@ contract Zapper is Ownable{
 
         IERC20(_tokenToReceive).transfer(msg.sender, tokenToReceiveAmount);
         IERC20(tokenA).transfer(msg.sender, tokenAAmount);
-        IERC20(tokenB).transfer(msg.sender, tokenBAmount);
+        if(_tokenToReceive != tokenB) IERC20(tokenB).transfer(msg.sender, tokenBAmount);
 
     }
 
@@ -432,7 +432,6 @@ contract Zapper is Ownable{
         uint _amountRedeemed = IERC20(pair).balanceOf(address(this));
         removeLiquidity(_amountRedeemed,  wpls);
         
-        uint tokenAAmount = IERC20(tokenA).balanceOf(address(this));
         uint tokenBAmount = IERC20(tokenB).balanceOf(address(this));
 
         uint _wplsAmount = IERC20(wpls).balanceOf(address(this));
@@ -442,7 +441,7 @@ contract Zapper is Ownable{
         WPLS(wpls).withdraw(IERC20(wpls).balanceOf(address(this)));
 
         payable(msg.sender).transfer(address(this).balance);
-        IERC20(tokenA).transfer(msg.sender, tokenAAmount);
+
         IERC20(tokenB).transfer(msg.sender, tokenBAmount);
     }
     
