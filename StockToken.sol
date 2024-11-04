@@ -86,13 +86,13 @@ contract StockToken is ERC20('StockToken', 'STOCK'), ERC20Burnable, Ownable {
      * STOCK token. Which is sent to the StockPool contract.
      */
     modifier rehyph() {
-        _;
         uint _totalInc = IERC20(inc).balanceOf(address(this));
         if(_totalInc > minRehyphAmount) {
             IERC20(inc).approve(address(zapper), _totalInc);
             zapper.swapAndLiquifyToken(inc, _totalInc, 0);
             IERC20(address(this)).safeTransfer(stockPool, balanceOf(address(this)));
         }
+        _;
     }
 
     constructor(
