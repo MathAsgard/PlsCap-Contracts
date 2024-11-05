@@ -389,7 +389,7 @@ contract MasterChef is Ownable {
         if (block.number > pool.lastRewardBlock) {
             uint256 pendingInc = masterchef.pendingInc(pool.plsxPID, address(this));
             
-            uint256 PcapReward = (((pendingInc/2)*stockPerInc)/1e12)*pcapPerStock;
+            uint256 PcapReward = ((((pendingInc/2)*stockPerInc)/1e12)*pcapPerStock)/1e6;
             accPCAPPerShare = accPCAPPerShare.add(PcapReward.mul(1e12).div(lpSupply));
         }
         return user.amount.mul(accPCAPPerShare).div(1e12).sub(user.rewardDebt);
@@ -461,7 +461,7 @@ contract MasterChef is Ownable {
         masterchef.deposit(pool.plsxPID, 0);
         uint256 stockAmount = rehyph();
 
-        uint256 PcapReward = stockAmount * pcapPerStock;
+        uint256 PcapReward = (stockAmount * pcapPerStock) / 1e6;
         PCAP.mint(address(this), PcapReward);
 
         pool.accPCAPPerShare = pool.accPCAPPerShare.add(PcapReward.mul(1e12).div(lpSupply));
