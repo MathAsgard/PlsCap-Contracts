@@ -1,5 +1,7 @@
 pragma solidity 0.8.20;
 
+
+
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -196,7 +198,7 @@ contract Zapper is Ownable{
         pair = 0xE56043671df55dE5CDf8459710433C10324DE0aE;
         addToken(tokenA);
         addToken(tokenB);
-        addToken(0x02DcdD04e3F455D838cd1249292C58f3B79e3C3C); // weth
+        addToken(0x02DcdD04e3F455D838cd1249292C58f3B79e3C3C); //weth
         addToken(0x95B303987A60C71504D99Aa1b13B4DA07b0790ab); // plsx
         addToken(0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d); // inc
         addToken(0x0Cb6F5a34ad42ec934882A05265A7d5F59b51A2f); // usdt
@@ -423,7 +425,7 @@ contract Zapper is Ownable{
 
         IERC20(_tokenToReceive).transfer(msg.sender, tokenToReceiveAmount);
         IERC20(tokenA).transfer(msg.sender, tokenAAmount);
-        if(_tokenToReceive != tokenB) IERC20(tokenB).transfer(msg.sender, tokenBAmount);
+        IERC20(tokenB).transfer(msg.sender, tokenBAmount);
 
     }
 
@@ -432,6 +434,7 @@ contract Zapper is Ownable{
         uint _amountRedeemed = IERC20(pair).balanceOf(address(this));
         removeLiquidity(_amountRedeemed,  wpls);
         
+        uint tokenAAmount = IERC20(tokenA).balanceOf(address(this));
         uint tokenBAmount = IERC20(tokenB).balanceOf(address(this));
 
         uint _wplsAmount = IERC20(wpls).balanceOf(address(this));
@@ -441,7 +444,7 @@ contract Zapper is Ownable{
         WPLS(wpls).withdraw(IERC20(wpls).balanceOf(address(this)));
 
         payable(msg.sender).transfer(address(this).balance);
-
+        IERC20(tokenA).transfer(msg.sender, tokenAAmount);
         IERC20(tokenB).transfer(msg.sender, tokenBAmount);
     }
     
