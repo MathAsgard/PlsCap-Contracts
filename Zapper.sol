@@ -232,7 +232,7 @@ contract Zapper is Ownable{
 
         IERC20(tokenA).safeTransfer(msg.sender, tokenAAmount);
         IERC20(tokenB).safeTransfer(msg.sender, tokenBAmount);
-        IERC20(pair).approve(address(stockToken), pairAmount);
+        IERC20(pair).approve(address(stockToken), _balanceBefore);
         stockToken.mint(msg.sender, pairAmount);
     }
 
@@ -261,7 +261,7 @@ contract Zapper is Ownable{
 
         IERC20(tokenA).safeTransfer(msg.sender, tokenAAmount);
         IERC20(tokenB).safeTransfer(msg.sender, tokenBAmount);
-        IERC20(pair).approve(address(stockToken), pairAmount);
+        IERC20(pair).approve(address(stockToken), _balanceBefore);
         stockToken.mint(msg.sender, pairAmount);
     }
     
