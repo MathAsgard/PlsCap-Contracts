@@ -68,12 +68,6 @@ contract StockPool is Ownable {
         uint timestamp
     );
 
-    event onReinvest(
-        address indexed customerAddress,
-        uint tokensRolled,
-        uint tokensMinted
-    );
-
     event onWithdraw(
         address indexed customerAddress,
         uint tokensWithdrawn
@@ -133,17 +127,6 @@ contract StockPool is Ownable {
         STOCK.safeTransferFrom(msg.sender, address(this), _amount);
         dividendPool += _amount;
         emit onDonation(msg.sender, _amount);
-    }
-
-    /**
-     * @dev This function creates a new stake using the pending rewards of a user
-     **/
-    function reinvest(uint _duration) updatePool onlyDivis external {
-        address _customerAddress = msg.sender;
-        uint _dividends = dividendsOf(_customerAddress);
-        userStats[_customerAddress].payoutsTo +=  (int256) (_dividends * precision);
-        createStake(_customerAddress, _dividends, _duration);
-        emit onReinvest(_customerAddress, _dividends, _dividends);
     }
 
     /**
