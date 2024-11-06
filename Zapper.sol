@@ -414,6 +414,12 @@ contract Zapper is Ownable{
         );
     }
 
+    function unwrapStock(uint _amount) external {
+        stockToken.burnUnlocked(msg.sender, _amount);
+        uint _amountRedeemed = IERC20(pair).balanceOf(address(this));
+        IERC20(pair).transfer(msg.sender, _amountRedeemed);
+    }
+
     function swapStockToTokens(uint _amount, address _tokenToReceive, uint _minAmountOut) external {
         stockToken.burnUnlocked(msg.sender, _amount);
         uint _amountRedeemed = IERC20(pair).balanceOf(address(this));
