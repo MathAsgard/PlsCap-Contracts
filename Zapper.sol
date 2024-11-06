@@ -226,13 +226,13 @@ contract Zapper is Ownable{
 
         uint tokenAAmount = IERC20(tokenA).balanceOf(address(this));
         uint tokenBAmount = IERC20(tokenB).balanceOf(address(this));
-        uint pairAmount = _balanceBefore - _balanceAfter;
+        uint pairAmount = _balanceAfter - _balanceBefore;
         
         require(pairAmount >= _minAmountOut, "Insufficient amount out");
 
         IERC20(tokenA).safeTransfer(msg.sender, tokenAAmount);
         IERC20(tokenB).safeTransfer(msg.sender, tokenBAmount);
-        IERC20(pair).approve(address(stockToken), _balanceBefore);
+        IERC20(pair).approve(address(stockToken), _balanceAfter);
         stockToken.mint(msg.sender, pairAmount);
     }
 
@@ -255,13 +255,13 @@ contract Zapper is Ownable{
        
         uint tokenAAmount = IERC20(tokenA).balanceOf(address(this));
         uint tokenBAmount = IERC20(tokenB).balanceOf(address(this));
-        uint pairAmount = _balanceBefore - _balanceAfter;
+        uint pairAmount = _balanceAfter - _balanceBefore;
         
         require(pairAmount >= _minAmountOut, "Insufficient amount out");
 
         IERC20(tokenA).safeTransfer(msg.sender, tokenAAmount);
         IERC20(tokenB).safeTransfer(msg.sender, tokenBAmount);
-        IERC20(pair).approve(address(stockToken), _balanceBefore);
+        IERC20(pair).approve(address(stockToken), _balanceAfter);
         stockToken.mint(msg.sender, pairAmount);
     }
     
