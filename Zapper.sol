@@ -226,7 +226,7 @@ contract Zapper is Ownable{
 
         uint tokenAAmount = IERC20(tokenA).balanceOf(address(this));
         uint tokenBAmount = IERC20(tokenB).balanceOf(address(this));
-        uint pairAmount = _balanceAfter - _balanceBefore;
+        uint pairAmount = _balanceBefore - _balanceAfter;
         
         require(pairAmount >= _minAmountOut, "Insufficient amount out");
 
@@ -255,7 +255,7 @@ contract Zapper is Ownable{
        
         uint tokenAAmount = IERC20(tokenA).balanceOf(address(this));
         uint tokenBAmount = IERC20(tokenB).balanceOf(address(this));
-        uint pairAmount = _balanceAfter - _balanceBefore;
+        uint pairAmount = _balanceBefore - _balanceAfter;
         
         require(pairAmount >= _minAmountOut, "Insufficient amount out");
 
@@ -434,6 +434,45 @@ contract Zapper is Ownable{
         IERC20(_tokenToReceive).transfer(msg.sender, tokenToReceiveAmount);
         IERC20(tokenA).transfer(msg.sender, tokenAAmount);
         if(_tokenToReceive != tokenB) IERC20(tokenB).transfer(msg.sender, tokenBAmount);
+    }
+
+    function swapStockToLp(uint _amount, address _otherPair, uint _minAmountOut) external {
+        stockToken.burnUnlocked(msg.sender, _amount);
+        uint _amountRedeemed = IERC20(pair).balanceOf(address(this));
+        removeLiquidity(_amountRedeemed,  wpls);
+        
+        uint _tokenBAmount = IERC20(tokenB).balanceOf(address(this));
+
+        uint _wplsAmount = IERC20(wpls).balanceOf(address(this));
+
+        IERC20(tokenB).transfer(msg.sender, _tokenBAmount);
+
+        IUniswapV2Pair _pair = IUniswapV2Pair(_otherPair);  
+        address otherTokenA = _pair.token0();
+        address otherTokenB = _pair.token1();
+
+        uint half = _wplsAmount/2;
+        
+        if(otherTokenA != wpls) {
+            swapForOutputTokenOther(wpls, otherTokenA, half);
+        }
+
+        if(otherTokenB != wpls) {
+            swapForOutputTokenOther(wpls, otherTokenB, half);
+        }
+
+        addLiquidityOther(otherTokenA, otherTokenB);
+
+        uint tokenAAmount = IERC20(otherTokenA).balanceOf(address(this));
+        uint tokenBAmount = IERC20(otherTokenB).balanceOf(address(this));
+        uint pairAmount = IERC20(_otherPair).balanceOf(address(this));
+
+        require(pairAmount >= _minAmountOut, "Insufficient amount out");
+
+        IERC20(otherTokenA).safeTransfer(msg.sender, tokenAAmount);
+        IERC20(otherTokenB).safeTransfer(msg.sender, tokenBAmount);
+        IERC20(_otherPair).transfer(msg.sender, pairAmount);        
+
 
     }
 
