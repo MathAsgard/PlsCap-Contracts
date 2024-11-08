@@ -266,7 +266,7 @@ contract Zapper is Ownable{
     }
     
     // swaps and then adds the liquidity
-    function swapAndLiquifyETHOther(address _otherPair, uint _minAmountOut) external payable {
+    function swapAndLiquifyETHOther(address _otherPair, uint _minAmountOut, address [] calldata _pathA, address [] calldata _pathB) external payable {
         IUniswapV2Pair _pair = IUniswapV2Pair(_otherPair);
         address otherTokenA = _pair.token0();
         address otherTokenB = _pair.token1();
@@ -276,11 +276,11 @@ contract Zapper is Ownable{
         uint half = _amount/2;
         
         if(otherTokenA != wpls) {
-            swapForOutputTokenOther(wpls, otherTokenA, half);
+            swapForOutputTokenOther(wpls, otherTokenA, half, _pathA);
         }
 
         if(otherTokenB != wpls) {
-            swapForOutputTokenOther(wpls, otherTokenB, half);
+            swapForOutputTokenOther(wpls, otherTokenB, half, _pathB);
         }
 
         addLiquidityOther(otherTokenA, otherTokenB);
@@ -298,7 +298,7 @@ contract Zapper is Ownable{
     }
 
     // swaps and then adds the liquidity
-    function swapAndLiquifyTokenOther(address _token, uint _amount, address _otherPair, uint _minAmountOut) external {
+    function swapAndLiquifyTokenOther(address _token, uint _amount, address _otherPair, uint _minAmountOut, address [] calldata _pathA, address [] calldata _pathB) external {
         IUniswapV2Pair _pair = IUniswapV2Pair(_otherPair);  
         address otherTokenA = _pair.token0();
         address otherTokenB = _pair.token1();
@@ -307,11 +307,11 @@ contract Zapper is Ownable{
         uint half = _amount/2;
         
         if(otherTokenA != _token) {
-            swapForOutputTokenOther(_token, otherTokenA, half);
+            swapForOutputTokenOther(_token, otherTokenA, half, _pathA);
         }
 
         if(otherTokenB != _token) {
-            swapForOutputTokenOther(_token, otherTokenB, half);
+            swapForOutputTokenOther(_token, otherTokenB, half, _pathB);
         }
 
         addLiquidityOther(otherTokenA, otherTokenB);
@@ -342,32 +342,31 @@ contract Zapper is Ownable{
     }
 
    // swaps the reward token for tokenA or tokenB
-    function swapForOutputTokenOther(address _token, address _tokenToReceive, uint _amount) internal {
+    function swapForOutputTokenOther(address _token, address _tokenToReceive, uint _amount, address [] calldata __path) internal {
         IERC20(_token).approve(address(pulsexV2Router), _amount);
-        if(_tokenToReceive != wpls && _token != wpls) {
-                address[] memory _path = new address[](3);
-                _path[0] = _token;
-                _path[1] = wpls;
-                _path[2] = _tokenToReceive;
-                pulsexV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-                    _amount,
-                    0,
-                    _path,
-                    address(this),
-                    block.timestamp
-                );
-            } else {
-                address[] memory _path = new address[](2);
-                _path[0] = _token;
-                _path[1] = _tokenToReceive;
-                pulsexV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-                    _amount,
-                    0,
-                    _path,
-                    address(this),
-                    block.timestamp
-                );
-            }
+        
+        address [] memory _path;
+        
+        if(__path[0] != address(0)) {
+            _path = __path;
+        } else if(_tokenToReceive != wpls && _token != wpls) {     
+            _path = new address [](3);
+            _path[0] = _token;
+            _path[1] = wpls;
+            _path[2] = _tokenToReceive;
+        } else {
+            _path = new address [](2);
+            _path[0] = _token;
+            _path[1] = _tokenToReceive;
+        }
+
+        pulsexV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            _amount,
+            0,
+            _path,
+            address(this),
+            block.timestamp
+        );
     }
     
     // adds the liquidity
@@ -436,7 +435,7 @@ contract Zapper is Ownable{
         if(_tokenToReceive != tokenB) IERC20(tokenB).transfer(msg.sender, tokenBAmount);
     }
 
-    function swapStockToLp(uint _amount, address _otherPair, uint _minAmountOut) external {
+    function swapStockToLp(uint _amount, address _otherPair, uint _minAmountOut, address [] calldata _path) external {
         stockToken.burnUnlocked(msg.sender, _amount);
         uint _amountRedeemed = IERC20(pair).balanceOf(address(this));
         removeLiquidity(_amountRedeemed,  wpls);
@@ -454,11 +453,11 @@ contract Zapper is Ownable{
         uint half = _wplsAmount/2;
         
         if(otherTokenA != wpls) {
-            swapForOutputTokenOther(wpls, otherTokenA, half);
+            swapForOutputTokenOther(wpls, otherTokenA, half, _path);
         }
 
         if(otherTokenB != wpls) {
-            swapForOutputTokenOther(wpls, otherTokenB, half);
+            swapForOutputTokenOther(wpls, otherTokenB, half, _path);
         }
 
         addLiquidityOther(otherTokenA, otherTokenB);
